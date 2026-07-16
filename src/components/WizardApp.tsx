@@ -21,6 +21,7 @@ interface Discount { id: number; name: string; description: string; percentage: 
 
 // Use Vite environment variable (must be prefixed with VITE_)
 const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL.replace(/\/$/, '');
 // Animation variants
 const variants = {
     enter: (d: number) => ({ x: d > 0 ? 300 : -300, opacity: 0 }),
@@ -134,7 +135,7 @@ export default function WizardApp() {
             body: JSON.stringify(form),
         });
         const result = await res.json();
-        if (result.success) window.location.href = `/recap/${result.recap_link}`;
+        if (result.success) window.location.href = `${BACKEND_URL}/recap/${result.recap_link}`;
         else alert('Error: ' + result.message);
     };
 
