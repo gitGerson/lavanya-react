@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence, type PanInfo } from 'motion/react';
+import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 
@@ -30,6 +31,15 @@ const variants = {
 };
 const swipeConfidenceThreshold = 10000;
 const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity;
+
+function SanitizedDescription({ html }: { html: string }) {
+    return (
+        <div
+            className="mb-2 [&_p]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-1"
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
+        />
+    );
+}
 
 export default function WizardApp() {
     const [step, setStep] = useState(1);
@@ -263,26 +273,34 @@ export default function WizardApp() {
 
         // Step 4 Venue Selection
         if (step === 4) return (
-            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-lg w-full mx-auto overflow-hidden">
+            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-4xl w-full mx-auto overflow-hidden">
                 <div>
                     <h2 className="text-2xl font-bold mb-4 text-center">Select a Venue</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
                         {loading.venues ? <p>Loading...</p> : venues.length === 0 ? <p>No venues found.</p> : venues.map(v => (
                             <div
                                 key={v.id}
                                 onClick={() => selectVenue(v)}
-                                className={`cursor-pointer border-4 rounded-lg overflow-hidden transition flex flex-col justify-between ${form.venue_id === v.id ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-200'}`}
+                                className={`group relative min-h-64 cursor-pointer overflow-hidden rounded-xl border-4 transition ${form.venue_id === v.id ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-300 hover:shadow-lg'}`}
                             >
-                                <div>
-                                    <img src={v.image} alt={v.name} className="w-full h-32 object-cover" />
-                                    <p className="text-center font-bold p-2 bg-white">{v.name}</p>
-                                </div>
-                                <div className="p-2 bg-white text-center">
+                                <img
+                                    src={v.image}
+                                    alt={v.name}
+                                    className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                                <div className="relative z-10 flex min-h-64 flex-col items-center justify-end p-4 text-center text-white">
+                                    <h3
+                                        title={v.name}
+                                        className="mb-3 line-clamp-3 min-h-[3.75rem] text-base font-bold leading-tight drop-shadow-md"
+                                    >
+                                        {v.name}
+                                    </h3>
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <button
                                                 onClick={(e) => e.stopPropagation()}
-                                                className="text-sm text-blue-600 hover:underline"
+                                                className="rounded-full border border-white/70 bg-black/35 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white hover:text-gray-900"
                                             >
                                                 Details
                                             </button>
@@ -290,7 +308,7 @@ export default function WizardApp() {
                                         <DialogContent className="bg-white">
                                             <h3 className="text-xl font-bold mb-2">{v.name}</h3>
                                             <img src={v.image} alt="" className="w-full h-48 object-cover mb-2 rounded-md" />
-                                            <p className="mb-2">{v.description}</p>
+                                            <SanitizedDescription html={v.description} />
                                             <a href={v.portofolio_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                                 View Portfolio
                                             </a>
@@ -321,26 +339,25 @@ export default function WizardApp() {
 
         // Step 5 Catering Selection
         if (step === 5) return (
-            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-lg w-full mx-auto overflow-hidden">
+            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-4xl w-full mx-auto overflow-hidden">
                 <div>
                     <h2 className="text-2xl font-bold mb-4 text-center">Choose Your Catering</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
                         {loading.caterings ? <p>Loading...</p> : caterings.length === 0 ? <p>No caterings found.</p> : caterings.map(c => (
                             <div
                                 key={c.id}
                                 onClick={() => selectCatering(c)}
-                                className={`cursor-pointer border-4 rounded-lg overflow-hidden transition flex flex-col justify-between ${form.catering_id === c.id ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-200'}`}
+                                className={`group relative min-h-64 cursor-pointer overflow-hidden rounded-xl border-4 transition ${form.catering_id === c.id ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-300 hover:shadow-lg'}`}
                             >
-                                <div>
-                                    <img src={c.image} alt={c.name} className="w-full h-32 object-cover" />
-                                    <p className="text-center font-bold p-2 bg-white">{c.name}</p>
-                                </div>
-                                <div className="p-2 bg-white text-center">
+                                <img src={c.image} alt={c.name} className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                                <div className="relative z-10 flex min-h-64 flex-col items-center justify-end p-4 text-center text-white">
+                                    <h3 title={c.name} className="mb-3 line-clamp-3 min-h-[3.75rem] text-base font-bold leading-tight drop-shadow-md">{c.name}</h3>
                                     <Dialog>
                                         <DialogTrigger asChild>
                                             <button
                                                 onClick={(e) => e.stopPropagation()}
-                                                className="text-sm text-blue-600 hover:underline"
+                                                className="rounded-full border border-white/70 bg-black/35 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white hover:text-gray-900"
                                             >
                                                 Details
                                             </button>
@@ -348,7 +365,7 @@ export default function WizardApp() {
                                         <DialogContent className="bg-white">
                                             <h3 className="text-xl font-bold mb-2">{c.name}</h3>
                                             <img src={c.image} alt="" className="w-full h-48 object-cover mb-2 rounded-md" />
-                                            <p className="mb-2">{c.description}</p>
+                                            <SanitizedDescription html={c.description} />
                                             <a href={c.portofolio_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
                                                 View Portfolio
                                             </a>
@@ -372,17 +389,38 @@ export default function WizardApp() {
             const cat = filteredVendorCategories[vendorIndex];
             const list = vendors[cat.id] || [];
             return (
-                <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-md w-full">
+                <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-4xl w-full">
                     <div>
                         <h2 className="text-2xl font-bold mb-4 text-center">Select Your {cat.name}</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[60vh] overflow-y-auto p-2">
                             {loading.vendors
                                 ? <p>Loading...</p>
                                 : list.map(v => (
                                     <div key={v.id} onClick={() => toggleVendor(v)}
-                                        className={`cursor-pointer border-4 rounded-lg overflow-hidden transition ${isVendorSelected(v.id) ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-200'}`}>
-                                        <img src={v.image} alt={v.name} className="w-full h-32 object-cover" />
-                                        <p className="text-center font-bold p-2 bg-white">{v.name}</p>
+                                        className={`group relative min-h-64 cursor-pointer overflow-hidden rounded-xl border-4 transition ${isVendorSelected(v.id) ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-300 hover:shadow-lg'}`}>
+                                        <img src={v.image} alt={v.name} className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105" />
+                                        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                                        <div className="relative z-10 flex min-h-64 flex-col items-center justify-end p-4 text-center text-white">
+                                            <h3 title={v.name} className="mb-3 line-clamp-3 min-h-[3.75rem] text-base font-bold leading-tight drop-shadow-md">{v.name}</h3>
+                                            <Dialog>
+                                                <DialogTrigger asChild>
+                                                    <button
+                                                        onClick={(e) => e.stopPropagation()}
+                                                        className="rounded-full border border-white/70 bg-black/35 px-4 py-1.5 text-sm font-medium text-white backdrop-blur-sm transition hover:bg-white hover:text-gray-900"
+                                                    >
+                                                        Details
+                                                    </button>
+                                                </DialogTrigger>
+                                                <DialogContent className="bg-white">
+                                                    <h3 className="text-xl font-bold mb-2">{v.name}</h3>
+                                                    <img src={v.image} alt="" className="w-full h-48 object-cover mb-2 rounded-md" />
+                                                    <SanitizedDescription html={v.description} />
+                                                    <a href={v.portofolio_link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                                                        View Portfolio
+                                                    </a>
+                                                </DialogContent>
+                                            </Dialog>
+                                        </div>
                                     </div>
                                 ))}
                         </div>
