@@ -35,7 +35,7 @@ const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velo
 function SanitizedDescription({ html }: { html: string }) {
     return (
         <div
-            className="mb-2 [&_p]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-1"
+            className="mb-2 max-h-40 overflow-y-auto overscroll-contain pr-2 [&_p]:mb-2 [&_ol]:list-decimal [&_ol]:pl-6 [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-1"
             dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(html) }}
         />
     );
@@ -248,18 +248,27 @@ export default function WizardApp() {
 
         // Step 3 Venue Type
         if (step === 3) return (
-            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-lg w-full mx-auto overflow-hidden">
+            <div className="bg-white text-gray-900 rounded-xl shadow p-6 max-w-4xl w-full mx-auto overflow-hidden">
                 <div>
                     <h2 className="text-2xl font-bold mb-4 text-center">Choose Your Venue Type</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid max-h-[65dvh] grid-cols-1 gap-4 overflow-y-auto overscroll-contain p-2 sm:grid-cols-2 lg:grid-cols-3">
                         {venueTypes.map(type => (
                             <div
                                 key={type.name}
                                 onClick={() => selectVenueType(type.name)}
-                                className={`cursor-pointer border-4 rounded-lg overflow-hidden transition-transform transform p-1 ${form.venue_type === type.name ? 'border-amber-400 shadow-lg bg-amber-50 scale-105' : 'border-transparent hover:border-amber-200 hover:bg-amber-100 hover:scale-105'}`}
+                                className={`group relative h-40 cursor-pointer overflow-hidden rounded-xl border-4 transition sm:h-56 lg:h-64 ${form.venue_type === type.name ? 'border-amber-400 shadow-xl' : 'border-transparent hover:border-gray-300 hover:shadow-lg'}`}
                             >
-                                <img src={type.image} alt={type.name} className="w-full h-32 object-cover rounded-md" />
-                                <p className="text-center font-bold p-2">{type.name}</p>
+                                <img
+                                    src={type.image}
+                                    alt={type.name}
+                                    className="absolute inset-0 h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/25 to-transparent" />
+                                <div className="relative z-10 flex h-full items-end justify-center p-4 text-center text-white">
+                                    <h3 title={type.name} className="line-clamp-3 text-lg font-bold leading-tight drop-shadow-md">
+                                        {type.name}
+                                    </h3>
+                                </div>
                             </div>
                         ))}
                     </div>
