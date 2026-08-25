@@ -32,6 +32,13 @@ const variants = {
 const swipeConfidenceThreshold = 10000;
 const swipePower = (offset: number, velocity: number) => Math.abs(offset) * velocity;
 
+// Detect referral slug from URL like https://domain.com/{slug}
+function getReferralSlug(): string {
+    const slug = window.location.pathname.replace(/^\/|\/$/g, '').split('/')[0];
+    if (!slug || slug === 'wizard') return '';
+    return decodeURIComponent(slug);
+}
+
 function SanitizedDescription({ html }: { html: string }) {
     return (
         <div
@@ -45,9 +52,10 @@ export default function WizardApp() {
     const [step, setStep] = useState(1);
     const [direction, setDirection] = useState(0);
     const VENDOR_STEP_START = 6;
+    const [referralFromUrl] = useState(getReferralSlug);
 
     const [form, setForm] = useState({
-        customer: { grooms_name: '', brides_name: '', guest_count: 0, wedding_date: '', phone_number: '', referral_code: '' } as Customer,
+        customer: { grooms_name: '', brides_name: '', guest_count: 0, wedding_date: '', phone_number: '', referral_code: referralFromUrl } as Customer,
         venue_type: '',
         venue_id: null as number | null,
         catering_id: null as number | null,
@@ -228,7 +236,7 @@ export default function WizardApp() {
                             </div>
                             <div>
                                 <label htmlFor="referral_code" className="block text-sm font-medium text-gray-700 mb-1">Kode Referral (opsional)</label>
-                                <input id="referral_code" type="text" className="input w-full p-2 border border-gray-300 rounded-md" value={form.customer.referral_code || ''} onChange={e => setForm(f => ({ ...f, customer: { ...f.customer, referral_code: e.target.value } }))} />
+                                <input id="referral_code" type="text" readOnly={!!referralFromUrl} className={`input w-full p-2 border border-gray-300 rounded-md${referralFromUrl ? ' bg-gray-100 text-gray-600' : ''}`} value={form.customer.referral_code || ''} onChange={e => setForm(f => ({ ...f, customer: { ...f.customer, referral_code: e.target.value } }))} />
                             </div>
                         </div>
                     </div>
